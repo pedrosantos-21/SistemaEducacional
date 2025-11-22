@@ -1,0 +1,64 @@
+:root {
+    --primary-blue: #5B9BD5; /* Azul dos Cards */
+    --bg-blue: #8EC5FC;      /* Azul claro de fundo */
+    --accent-orange: #FF8C00; /* Laranja dos botões */
+    --text-white: #ffffff;
+}
+
+body {
+    background-color: var(--bg-blue);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--primary-blue); /* Ou um tom levemente diferente se preferir */
+    min-height: 100vh;
+    color: white;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    padding: 15px;
+    display: block;
+    font-size: 1.1rem;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+/* Cards e Conteúdo */
+.content-card {
+    background-color: var(--primary-blue);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-control {
+    background-color: rgba(255, 255, 255, 0.3); /* Transparência nos inputs */
+    border: 1px solid white;
+    color: white;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-orange {
+    background-color: var(--accent-orange);
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+
+.btn-orange:hover {
+    background-color: #e07b00;
+    color: white;
+}
