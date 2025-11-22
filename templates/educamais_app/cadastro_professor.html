@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Novo Professor</h2>
+        <span class="small opacity-75">Cadastro de Docente e Acesso ao Sistema (RF002)</span>
+    </div>
+
+    {% if sucesso %}
+    <div class="alert alert-success alert-dismissible fade show">
+        <strong>Sucesso!</strong> Professor e Usuário de Login criados.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <form method="POST">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <p><strong>Ops! Corrija os erros abaixo:</strong></p>
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <h5 class="mb-3 text-white-50">Dados de Acesso (Login)</h5>
+        <div class="row g-3 mb-4 p-3 border border-light border-opacity-25 rounded">
+            <div class="col-md-6">
+                <label class="form-label">{{ form.email.label }} (Será o Login)</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.senha_login.label }}</label>
+                {{ form.senha_login }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.confirmar_senha.label }}</label>
+                {{ form.confirmar_senha }}
+            </div>
+        </div>
+
+        <h5 class="mb-3 text-white-50">Dados Pessoais e Profissionais</h5>
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label">{{ form.nome_completo.label }}</label>
+                {{ form.nome_completo }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ form.cpf.label }}</label>
+                {{ form.cpf }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ form.rg.label }}</label>
+                {{ form.rg }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ form.data_nascimento.label }}</label>
+                {{ form.data_nascimento }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">{{ form.formacao_academica.label }}</label>
+                {{ form.formacao_academica }}
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">{{ form.area_atuacao.label }}</label>
+                {{ form.area_atuacao }}
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">{{ form.status.label }}</label>
+                {{ form.status }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">{{ form.disciplinas_ministradas.label }}</label>
+                {{ form.disciplinas_ministradas }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">{{ form.observacoes.label }}</label>
+                {{ form.observacoes }}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="reset" class="btn btn-outline-light text-dark border-dark">Limpar</button>
+            <button type="submit" class="btn btn-orange px-4">Salvar Professor</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

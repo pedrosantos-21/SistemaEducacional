@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.home, name='home'), 
     
     # Rota para o cadastro (http://127.0.0.1:8000/cadastro/)
-    path('cadastro/', views.cadastro_aluno, name='cadastro_aluno'),
+    path('cadastro_aluno/', views.cadastro_aluno, name='cadastro_aluno'),
+    path('cadastro_professor/', views.cadastro_professor, name='cadastro_professor'),
 ]
