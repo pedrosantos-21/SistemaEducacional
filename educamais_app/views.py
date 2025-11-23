@@ -1,8 +1,8 @@
 # Arquivo: educamais_app/views.py
 from django.shortcuts import render, redirect
-from .models import Reeducando
+from .models import Reeducando, Matricula
 from django.contrib.auth.models import User
-from .forms import ProfessorForm, ReeducandoForm, CursoForm 
+from .forms import ProfessorForm, ReeducandoForm, CursoForm, MatriculaForm, ProgressoForm
 from django.utils import timezone
 from datetime import timedelta 
 
@@ -98,6 +98,55 @@ def cadastro_curso(request):
         'sucesso': sucesso
     })
 
+
+def cadastro_matricula(request):
+    sucesso = False
+    if request.method == 'POST':
+        form = MatriculaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            sucesso = True
+            form = MatriculaForm() # Limpa o formulário
+    else:
+        form = MatriculaForm()
+
+    return render(request, 'educamais_app/cadastro_matricula.html', {
+        'form': form,
+        'sucesso': sucesso
+    })
+
+
+def lancamento_nota(request):
+    sucesso = False
+    if request.method == 'POST':
+        form = ProgressoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            sucesso = True
+            form = ProgressoForm() # Limpa após salvar
+    else:
+        form = ProgressoForm()
+
+    return render(request, 'educamais_app/lancamento_nota.html', {
+        'form': form,
+        'sucesso': sucesso
+    })
+
+# ... imports ...
+
+def painel_relatorios(request):
+    # Vamos buscar todas as matrículas para listar no relatório geral
+    # O select_related ajuda a performance trazendo dados do Aluno e Curso juntos
+    relatorios = Matricula.objects.select_related('aluno', 'curso').all()
+
+    # Se o usuário filtrar pelo GET (ex: ?busca=Joao)
+    busca = request.GET.get('busca')
+    if busca:
+        relatorios = relatorios.filter(aluno__nome_completo__icontains=busca)
+
+    return render(request, 'educamais_app/painel_relatorios.html', {
+        'relatorios': relatorios
+    })
 
 '''
     sucesso = False

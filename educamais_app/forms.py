@@ -1,4 +1,4 @@
-from .models import Reeducando, Professor, Curso
+from .models import Reeducando, Professor, Curso, Matricula, Progresso
 from django.contrib.auth.models import User
 from django import forms
 
@@ -126,14 +126,37 @@ class CursoForm(forms.ModelForm):
         self.fields['professor_responsavel'].queryset = Professor.objects.filter(status='1')
 
 
-class MatriculaForm(forms.Form):
-    reeducando = forms.ModelChoiceField(
-        queryset=Reeducando.objects.filter(status='1'),
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        label='Reeducando'
-    )
-    curso = forms.ModelChoiceField(
-        queryset=Curso.objects.filter(status='1'),
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        label='Curso'
-    )
+class MatriculaForm(forms.ModelForm):
+    class Meta:
+        model = Matricula
+        fields = ['aluno', 'curso', 'status'] # Data de início é automática
+        
+        widgets = {
+            'aluno': forms.Select(attrs={'class': 'form-select'}),
+            'curso': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # REGRA DE NEGÓCIO: Só permitir matricular alunos ATIVOS e cursos ATIVOS
+        self.fields['aluno'].queryset = Reeducando.objects.filter(status=1) 
+        self.fields['curso'].queryset = Curso.objects.filter(status='1')
+
+
+class ProgressoForm(forms.ModelForm):
+    class Meta:
+        model = Progresso
+        fields = ['matricula', 'modulo_aula', 'nota_avaliacao', 'tempo_gasto']
+        
+        widgets = {
+            'matricula': forms.Select(attrs={'class': 'form-select'}),
+            'modulo_aula': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Módulo 1 - Introdução'}),
+            'nota_avaliacao': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.0 a 10.0', 'step': '0.1', 'min': '0', 'max': '10'}),
+            'tempo_gasto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'HH:MM:SS', 'type': 'time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # REGRA DE NEGÓCIO: Só mostra matrículas "Em Andamento" (Status=1)
+        self.fields['matricula'].queryset = Matricula.objects.filter(status='1')

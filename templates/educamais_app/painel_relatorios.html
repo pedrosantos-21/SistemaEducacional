@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">Painel de Relatórios</h2>
+            <span class="text-muted">Monitoramento de Progresso e Certificação (RF010)</span>
+        </div>
+        <div>
+            <button class="btn btn-outline-dark me-2"><i class="bi bi-printer"></i> Imprimir Lista</button>
+        </div>
+    </div>
+
+    <div class="content-card mb-4 p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-auto">
+                <label class="col-form-label text-white fw-bold">Buscar Aluno:</label>
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="busca" class="form-control" placeholder="Digite o nome do reeducando..." value="{{ request.GET.busca }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-orange">Filtrar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Aluno</th>
+                        <th>Curso</th>
+                        <th>Data Início</th>
+                        <th>Status Matrícula</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in relatorios %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ item.aluno.nome_completo }}</td>
+                        <td>{{ item.curso.nome_curso }}</td>
+                        <td>{{ item.data_inicio|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if item.status == '1' %}
+                                <span class="badge bg-primary">Em Andamento</span>
+                            {% elif item.status == '2' %}
+                                <span class="badge bg-success">Concluído</span>
+                            {% elif item.status == '3' %}
+                                <span class="badge bg-warning text-dark">Trancado</span>
+                            {% else %}
+                                <span class="badge bg-danger">Evadido</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" title="Gerar Boletim">
+                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Nenhum registro encontrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

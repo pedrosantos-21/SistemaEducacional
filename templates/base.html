@@ -12,23 +12,46 @@
 
     <div class="container-fluid">
         <div class="row">
+
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse pt-3">
                 <div class="text-center mb-4">
                     <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 150px;">
                     <h6 class="mt-2 text-white small">SISTEMA EDUCACIONAL<br>PARA PESSOAS PRIVADAS DE LIBERDADE</h6>
-                </div>
-                
-                <div class="position-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item"><a href="#" class="nav-link">Dashboard</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link active">Cadastros</a></li> <li class="nav-item"><a href="#" class="nav-link">Relatórios</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link">Usuários</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link">Configurações</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link">Ajuda</a></li>
-                    </ul>
-                </div>
-            </nav>
+                </div>  
+                    <div class="position-sticky">
+                        <ul class="nav flex-column gap-2">
+                            <li class="nav-item">
+                                <a href="{% url 'home' %}" class="nav-link text-white">Dashboard</a>
+                            </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link text-white dropdown-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenuCadastros">
+                                    Cadastros
+                                </a>
+                                <div class="collapse ps-3" id="submenuCadastros">
+                                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                        <li><a href="{% url 'cadastro_aluno' %}" class="nav-link text-white opacity-75">Novo Aluno</a></li>
+                                        <li><a href="{% url 'cadastro_professor' %}" class="nav-link text-white opacity-75">Novo Professor</a></li>
+                                        <li><a href="{% url 'cadastro_curso' %}" class="nav-link text-white opacity-75">Cursos</a></li>
+                                        <li><a href="{% url 'cadastro_matricula' %}" class="nav-link text-white opacity-75">Nova Matrícula</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a href="{% url 'painel_relatorios' %}" class="nav-link text-white">Relatórios</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{% url 'lancamento_nota' %}" class="nav-link text-white">Lançar Notas</a>
+                            </li>
+
+                            <li class="nav-item"><a href="#" class="nav-link text-white">Usuários</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link text-white">Configurações</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link text-white">Ajuda</a></li>
+                        </ul>
+                    </div>
+                </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
                 
                 {% block content %}

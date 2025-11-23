@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="content-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold">Registro de Progresso</h2>
+            <span class="small opacity-75">Lançamento de Notas e Frequência (RF009)</span>
+        </div>
+
+        {% if sucesso %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Sucesso!</strong> Nota registrada e sincronizada com o histórico do aluno.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Ops! Verifique os erros:</strong>
+                <ul>
+                {% for field in form %}
+                    {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold text-warning">{{ form.matricula.label }}</label>
+                    {{ form.matricula }}
+                    <div class="form-text text-white-50 small">Selecione a matrícula ativa (Aluno - Curso).</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.modulo_aula.label }}</label>
+                    {{ form.modulo_aula }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">{{ form.nota_avaliacao.label }}</label>
+                    {{ form.nota_avaliacao }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">{{ form.tempo_gasto.label }}</label>
+                    {{ form.tempo_gasto }}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="reset" class="btn btn-outline-light text-dark border-dark">Limpar</button>
+                <button type="submit" class="btn btn-orange px-4">Lançar Nota</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

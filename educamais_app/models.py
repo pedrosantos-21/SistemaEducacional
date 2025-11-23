@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User  # <--- IMPORTANTE: Importamos o usuário padrão do Django
+import uuid  # Importe isso lá no topo do arquivo para gerar códigos únicos
 
 class Reeducando(models.Model):
     
@@ -115,7 +116,134 @@ class Curso(models.Model):
         verbose_name_plural = "Cursos"
 
 
+class Matricula(models.Model):
+    """
+    RF008 - Requisito responsável pela Matrícula de Alunos em Cursos.
+    """
+    # Padrão definido no RF008: 1=Em andamento, 2=Concluído, 3=Trancado, 4=Evadido
+    STATUS_MATRICULA_CHOICES = [
+        (1, 'Em Andamento'),
+        (2, 'Concluído'),
+        (3, 'Trancado'),
+        (4, 'Evadido'),
+    ]
 
+    # --- VÍNCULOS (FOREIGN KEYS) ---
+    # O ID da Matrícula é gerado automaticamente pelo Django (Integer) 
+    
+    # Vínculo com RF001 (Aluno) - Campo Obrigatório 
+    aluno = models.ForeignKey(
+        Reeducando, 
+        on_delete=models.CASCADE, 
+        verbose_name="Aluno"
+    )
+    
+    # Vínculo com RF005 (Curso) - Campo Obrigatório 
+    curso = models.ForeignKey(
+        Curso, 
+        on_delete=models.CASCADE, 
+        verbose_name="Curso"
+    )
+    
+    # --- DATAS E SITUAÇÃO ---
+    # Data de Início gerada automaticamente pelo sistema 
+    data_inicio = models.DateField(auto_now_add=True, verbose_name="Data de Início")
+    
+    # Data de Conclusão deve ser nula até que o status seja "Concluído" 
+    data_conclusao = models.DateField(blank=True, null=True, verbose_name="Data de Conclusão")
+    
+    # Status padrão deve ser "Em andamento" (1) ao criar 
+    status = models.IntegerField(
+        choices=STATUS_MATRICULA_CHOICES, 
+        default=1, 
+        verbose_name="Status da Matrícula"
+    )
+
+    def __str__(self):
+        return f"{self.aluno.nome_completo} - {self.curso.nome_curso}"
+
+    class Meta:
+        verbose_name = "Matrícula"
+        verbose_name_plural = "Matrículas"
+        # Regra de Negócio: Impede duplicidade (O mesmo aluno no mesmo curso)
+        unique_together = ('aluno', 'curso')
+
+# ... (Mantenha o código anterior) ...
+
+class Progresso(models.Model):
+    """
+    RF009 - Registro de Progresso e Avaliações do Aluno.
+    Registra cada aula concluída, nota e tempo de estudo.
+    """
+    # Vínculo com a Matrícula (RF008) - Obrigatório
+    matricula = models.ForeignKey(
+        Matricula, 
+        on_delete=models.CASCADE, 
+        verbose_name="Matrícula do Aluno"
+    )
+    
+    # Identificação da Aula/Módulo (Como no curso usamos TextField, aqui usamos String ou Int)
+    modulo_aula = models.CharField(max_length=100, verbose_name="Módulo/Aula Concluída")
+    
+    # Avaliação (Opcional, pois pode ser apenas uma aula assistida sem prova)
+    nota_avaliacao = models.DecimalField(
+        max_digits=4, 
+        decimal_places=2, 
+        blank=True, 
+        null=True, 
+        verbose_name="Nota Obtida"
+    )
+    
+    # Controle de Sincronização e Tempo
+    data_conclusao = models.DateTimeField(auto_now_add=True, verbose_name="Data/Hora Conclusão")
+    tempo_gasto = models.DurationField(blank=True, null=True, verbose_name="Tempo de Estudo") # Ex: 01:30:00
+    
+    # Status de Sincronização (RF009)
+    SYNC_CHOICES = [(1, 'Pendente'), (2, 'Sincronizado')]
+    status_sincronizacao = models.IntegerField(choices=SYNC_CHOICES, default=2) # Default 2 pois estamos na web
+
+    def __str__(self):
+        return f"{self.matricula.aluno.nome_completo} - {self.modulo_aula}"
+
+    class Meta:
+        verbose_name = "Progresso / Nota"
+        verbose_name_plural = "Progresso Acadêmico"
+
+import uuid # Importe isso lá no topo do arquivo para gerar códigos únicos
+
+# ... (Seus models anteriores) ...
+
+class Certificado(models.Model):
+    """
+    Parte do RF010 - Registro de Certificados Emitidos.
+    Armazena o histórico de conclusões para consulta posterior.
+    """
+    # Vínculo com a Matrícula (que já tem Aluno e Curso)
+    matricula = models.ForeignKey(
+        Matricula, 
+        on_delete=models.CASCADE, 
+        verbose_name="Matrícula"
+    )
+    
+    # Código único para validação (Ex: a0eebc99-9c0b...)
+    codigo_validacao = models.UUIDField(
+        default=uuid.uuid4, 
+        editable=False, 
+        unique=True, 
+        verbose_name="Código de Validação"
+    )
+    
+    data_emissao = models.DateTimeField(auto_now_add=True, verbose_name="Data de Emissão")
+    
+    # Opcional: Se quiser salvar o caminho do arquivo PDF gerado
+    arquivo_pdf = models.CharField(max_length=255, blank=True, null=True, verbose_name="Caminho do Arquivo")
+
+    def __str__(self):
+        return f"Certificado {self.codigo_validacao} - {self.matricula.aluno.nome_completo}"
+
+    class Meta:
+        verbose_name = "Certificado Emitido"
+        verbose_name_plural = "Certificados Emitidos"
 
 '''
 1º O que ela faz?
