@@ -1,7 +1,8 @@
 # Arquivo: educamais_app/views.py
 from django.shortcuts import render, redirect
 from .models import Reeducando
-from .forms import reeducandoForm, professorForm
+from django.contrib.auth.models import User
+from .forms import reeducandoForm, professorForm, cursoForm 
 from django.utils import timezone
 from datetime import timedelta 
 
@@ -79,3 +80,32 @@ def cadastro_professor(request):
         'form': form,
         'sucesso': sucesso
     })
+
+def cadastro_curso(request):
+    sucesso = False
+
+    if request.method == 'POST':
+        form = cursoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            sucesso = True
+            form = cursoForm()
+    else:
+        form = cursoForm()
+
+    return render(request, 'educamais_app/cadastro_curso.html', {
+        'form': form,
+        'sucesso': sucesso
+    })
+
+
+'''
+    sucesso = False
+    1º O Estado inicial (A "Página em branco")
+
+       Quando o usuário entra na página pela primeira vez (para preencher o formulário), ele ainda não salvo nada.
+
+       A) Se sucesso começasse como True, a mensagem de sucesso apareceria sem o usuário ter feito nada.
+       B) Começando como False, a mensagem só aparece depois que o usuário preenche o formulário e clica em "Salvar". 
+       
+'''

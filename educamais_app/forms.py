@@ -1,4 +1,4 @@
-from .models import Reeducando, Professor
+from .models import Reeducando, Professor, Curso
 from django.contrib.auth.models import User
 from django import forms
 
@@ -100,3 +100,27 @@ class professorForm(forms.ModelForm):
         if senha and confirmar and senha != confirmar:
             # Isso joga o erro lá para o campo "Confirmar Senha" em vez do topo
             self.add_error('confirmar_senha', "As senhas não conferem.")
+
+class cursoForm(forms.ModelForm):
+    class Meta:
+        model = Curso
+        fields = [
+            'nome_curso', 'descricao_ementa', 'professor_responsavel',
+            'carga_horaria', 'modalidade', 'modulos_aulas', 'status'
+        ]
+
+        widgets = {
+            'nome_curso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Introdução à Informática'}),
+            'descricao_ementa': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'carga_horaria': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 40h'}),
+            'modalidade': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Presencial / EAD'}),
+            'modulos_aulas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Módulo 1: ...'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            # O professor_responsavel é um Select, o Django popula ele automaticamente
+            'professor_responsavel': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #Regra de négocio do RF005: Mostra apenas professores ativos (Status='1')
+        self.fields['professor_responsavel'].queryset = Professor.objects.filter(status='1')
