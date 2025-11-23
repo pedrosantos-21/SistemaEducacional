@@ -2,7 +2,7 @@ from .models import Reeducando, Professor, Curso
 from django.contrib.auth.models import User
 from django import forms
 
-class reeducandoForm(forms.ModelForm):
+class ReeducandoForm(forms.ModelForm):
    class Meta:
         model = Reeducando
         fields = [
@@ -62,7 +62,7 @@ class reeducandoForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
 
-class professorForm(forms.ModelForm):
+class ProfessorForm(forms.ModelForm):
     senha_login = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '********'}),
         label='Senha de Acesso'
@@ -101,7 +101,7 @@ class professorForm(forms.ModelForm):
             # Isso joga o erro lá para o campo "Confirmar Senha" em vez do topo
             self.add_error('confirmar_senha', "As senhas não conferem.")
 
-class cursoForm(forms.ModelForm):
+class CursoForm(forms.ModelForm):
     class Meta:
         model = Curso
         fields = [
@@ -124,3 +124,16 @@ class cursoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         #Regra de négocio do RF005: Mostra apenas professores ativos (Status='1')
         self.fields['professor_responsavel'].queryset = Professor.objects.filter(status='1')
+
+
+class MatriculaForm(forms.Form):
+    reeducando = forms.ModelChoiceField(
+        queryset=Reeducando.objects.filter(status='1'),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Reeducando'
+    )
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.filter(status='1'),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Curso'
+    )

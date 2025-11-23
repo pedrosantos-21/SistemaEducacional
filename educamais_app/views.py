@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from .models import Reeducando
 from django.contrib.auth.models import User
-from .forms import reeducandoForm, professorForm, cursoForm 
+from .forms import ProfessorForm, ReeducandoForm, CursoForm 
 from django.utils import timezone
 from datetime import timedelta 
 
@@ -37,13 +37,13 @@ def cadastro_aluno(request):
     sucesso = False
 
     if request.method == 'POST':
-        form = reeducandoForm(request.POST)
+        form = ReeducandoForm(request.POST)
         if form.is_valid():
             form.save()
             sucesso = True
-            form = reeducandoForm()
+            form = ReeducandoForm()
     else:
-        form = reeducandoForm()
+        form = ReeducandoForm()
 
     return render(request, 'educamais_app/cadastro_aluno.html', {
         'form': form,
@@ -54,7 +54,7 @@ def cadastro_professor(request):
     sucesso = False
 
     if request.method == 'POST':
-        form = professorForm(request.POST)
+        form = ProfessorForm(request.POST)
         if form.is_valid():
             #1º Captura os dados mas não salva no banco ainda (commit =False)
             professor = form.save(commit=False)
@@ -72,9 +72,9 @@ def cadastro_professor(request):
             professor.save()  # Salva o professor no banco
             
             sucesso = True
-            form = professorForm() # Limpa o formulário após o cadastro
+            form = ProfessorForm() # Limpa o formulário após o cadastro
     else:
-        form = professorForm()
+        form = ProfessorForm()
 
     return render(request, 'educamais_app/cadastro_professor.html', {
         'form': form,
@@ -85,13 +85,13 @@ def cadastro_curso(request):
     sucesso = False
 
     if request.method == 'POST':
-        form = cursoForm(request.POST)
+        form = CursoForm(request.POST)
         if form.is_valid():
             form.save()
             sucesso = True
-            form = cursoForm()
+            form = CursoForm()
     else:
-        form = cursoForm()
+        form = CursoForm()
 
     return render(request, 'educamais_app/cadastro_curso.html', {
         'form': form,
