@@ -1,10 +1,45 @@
 # Arquivo: educamais_app/views.py
 from django.shortcuts import render, redirect
-from .models import Reeducando, Matricula
+from .models import Reeducando, Matricula, ConteudoHome
 from django.contrib.auth.models import User
-from .forms import ProfessorForm, ReeducandoForm, CursoForm, MatriculaForm, ProgressoForm
+from .forms import ProfessorForm, ReeducandoForm, CursoForm, MatriculaForm, ProgressoForm, ConteudoHomeForm
 from django.utils import timezone
 from datetime import timedelta 
+
+
+# Adicione Progresso nas importações
+from .models import Reeducando, ConteudoHome, Progresso 
+
+def home(request):
+    # ... (Lógica dos contadores continua igual) ...
+    total_reeducandos = Reeducando.objects.count()
+    total_reeducandos_fechado = Reeducando.objects.filter(regime_inicial=1).count()
+    
+    # ... (Lógica de datas continua igual) ...
+    hoje = timezone.now().date()
+    aprox_30_dias = hoje + timedelta(days=30)
+    total_reeducandos_termino_proximo = Reeducando.objects.filter(
+        data_prevista_termino__range=[hoje, aprox_30_dias]
+    ).count()
+
+    # Configuração da Home
+    conteudo, created = ConteudoHome.objects.get_or_create(id=1)
+
+    # --- NOVA LÓGICA: Buscar as 5 últimas atividades ---
+    atividades_recentes = Progresso.objects.select_related('matricula__aluno').order_by('-data_conclusao')[:5]
+
+    context = {
+        'total_reeducandos': total_reeducandos,
+        'total_reeducandos_fechado': total_reeducandos_fechado,
+        'total_reeducandos_termino_proximo': total_reeducandos_termino_proximo,
+        'conteudo': conteudo,
+        'atividades_recentes': atividades_recentes, # <--- Mandando para o HTML
+    }
+
+    return render(request, 'educamais_app/home.html', context)
+
+'''
+
 
 def home(request):
     # Por enquanto vamos renderizar o cadastro na home também, ou uma página temporária
@@ -33,6 +68,7 @@ def home(request):
 
     return render(request, 'educamais_app/home.html',context) 
 
+'''
 def cadastro_aluno(request):
     sucesso = False
 
@@ -146,6 +182,93 @@ def painel_relatorios(request):
 
     return render(request, 'educamais_app/painel_relatorios.html', {
         'relatorios': relatorios
+    })
+
+# Importe os novos forms
+from .forms import (
+    ReeducandoForm, ProfessorForm, CursoForm, MatriculaForm, 
+    ProgressoForm, AdministradorForm, GestorForm
+)
+
+# ... (Outras views) ...
+
+def cadastro_administrador(request):
+    sucesso = False
+    if request.method == 'POST':
+        form = AdministradorForm(request.POST)
+        if form.is_valid():
+            admin_user = form.save(commit=False)
+            # Cria Usuário do Django
+            username = form.cleaned_data['email']
+            senha = form.cleaned_data['senha_login']
+            novo_usuario = User.objects.create_user(username=username, password=senha)
+            
+            # Vincula e Salva
+            admin_user.usuario = novo_usuario
+            admin_user.save()
+            
+            sucesso = True
+            form = AdministradorForm()
+    else:
+        form = AdministradorForm()
+
+    return render(request, 'educamais_app/cadastro_administrador.html', {
+        'form': form,
+        'sucesso': sucesso
+    })
+
+def cadastro_gestor(request):
+    sucesso = False
+    if request.method == 'POST':
+        form = GestorForm(request.POST)
+        if form.is_valid():
+            gestor_user = form.save(commit=False)
+            # Cria Usuário do Django
+            username = form.cleaned_data['email']
+            senha = form.cleaned_data['senha_login']
+            novo_usuario = User.objects.create_user(username=username, password=senha)
+            
+            # Vincula e Salva
+            gestor_user.usuario = novo_usuario
+            gestor_user.save()
+            
+            sucesso = True
+            form = GestorForm()
+    else:
+        form = GestorForm()
+
+    return render(request, 'educamais_app/cadastro_gestor.html', {
+        'form': form,
+        'sucesso': sucesso
+    })
+
+
+def gerenciar_home(request):
+    # O Segredo: Pega sempre o ID=1. Se não existir, cria vazio.
+    conteudo, created = ConteudoHome.objects.get_or_create(id=1)
+    
+    sucesso = False
+    
+    if request.method == 'POST':
+        # Passamos a 'instance=conteudo' para dizer que é uma EDIÇÃO, não criação
+        form = ConteudoHomeForm(request.POST, instance=conteudo)
+        if form.is_valid():
+            # Salva o autor da modificação (se tiver usuário logado)
+            if request.user.is_authenticated:
+                config = form.save(commit=False)
+                config.autor_modificacao = request.user
+                config.save()
+            else:
+                form.save()
+                
+            sucesso = True
+    else:
+        # Preenche o formulário com o que já existe no banco
+        form = ConteudoHomeForm(instance=conteudo)
+
+    return render(request, 'educamais_app/gerenciar_home.html', {
+        'form': form,
+        'sucesso': sucesso
     })
 
 '''

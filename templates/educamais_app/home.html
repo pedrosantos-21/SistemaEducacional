@@ -2,68 +2,91 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark">Dashboard</h2>
-            <span class="text-muted">Visão geral do sistema educacional</span>
-        </div>
-        <div>
-            <a href="{% url 'cadastro_aluno' %}" class="btn btn-orange text-white">
-                <i class="bi bi-plus-lg"></i> Novo Aluno
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark">{{ conteudo.titulo_principal|default:"Dashboard" }}</h2>
+
+        <span class="text-muted">{{ conteudo.descricao_hero|default:"Visão geral do sistema educacional" }}</span>
     </div>
-
-    <div class="row g-4">
-        
-        <div class="col-md-4">
-            <div class="content-card h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <h5 class="opacity-75">Total Cadastrados</h5>
-                    <h1 class="fw-bold display-4">{{ total_reeducandos }}</h1>
-                </div>
-                <div class="mt-3">
-                    <span class="badge bg-light text-primary">Reeducandos no sistema</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="content-card h-100 d-flex flex-column justify-content-between" style="background-color: #4a8bc2;"> 
-                <div>
-                    <h5 class="opacity-75">Em Regime Fechado</h5>
-                    <h1 class="fw-bold display-4">{{ total_reeducandos_fechado }}</h1>
-                </div>
-                <div class="mt-3">
-                    <span class="badge bg-light text-primary">Prioridade Educacional</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="content-card h-100 d-flex flex-column justify-content-between" style="background-color: #3b7ab0;">
-                <div>
-                    <h5 class="opacity-75">Término Próximo (30d)</h5>
-                    <h1 class="fw-bold display-4">{{ total_reeducandos_termino_proximo }}</h1>
-                </div>
-                <div class="mt-3">
-                    <span class="badge bg-warning text-dark">Atenção Necessária</span>
-                </div>
-            </div>
-        </div>
-
+    <div>
+        <a href="{% url 'cadastro_aluno' %}" class="btn btn-orange text-white">
+            <i class="bi bi-plus-lg"></i> Novo Aluno
+        </a>
     </div>
+</div>
+<div class="row g-4">
 
-    <div class="row mt-5">
-        <div class="col-12">
-            <h4 class="text-muted mb-3">Atividades Recentes</h4>
-            <div class="bg-white p-5 rounded text-center shadow-sm">
-                <p class="text-muted">Nenhuma atividade recente registrada.</p>
-                <small>Quando você criar o módulo de aulas, o histórico aparecerá aqui.</small>
+    <div class="col-md-4">
+        <div class="content-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="opacity-75">Total Cadastrados</h5>
+                <h1 class="fw-bold display-4">{{ total_reeducandos }}</h1>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-light text-primary">Reeducandos no sistema</span>
             </div>
         </div>
     </div>
 
+    <div class="col-md-4">
+        <div class="content-card h-100 d-flex flex-column justify-content-between" style="background-color: #4a8bc2;">
+            <div>
+                <h5 class="opacity-75">Em Regime Fechado</h5>
+                <h1 class="fw-bold display-4">{{ total_reeducandos_fechado }}</h1>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-light text-primary">Prioridade Educacional</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="content-card h-100 d-flex flex-column justify-content-between" style="background-color: #3b7ab0;">
+            <div>
+                <h5 class="opacity-75">Término Próximo (30d)</h5>
+                <h1 class="fw-bold display-4">{{ total_reeducandos_termino_proximo }}</h1>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-warning text-dark">Atenção Necessária</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h4 class="text-muted mb-3">Atividades Recentes</h4>
+
+        {% if atividades_recentes %}
+        <div class="list-group shadow-sm border-0">
+            {% for atividade in atividades_recentes %}
+            <div class="list-group-item list-group-item-action d-flex gap-3 py-3 border-0 border-bottom">
+                <div class="d-flex align-items-center justify-content-center bg-light rounded-circle"
+                    style="width: 40px; height: 40px;">
+                    <i class="bi bi-journal-check text-primary"></i>
+                </div>
+
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">{{ atividade.matricula.aluno.nome_completo }}</h6>
+                        <p class="mb-0 opacity-75 small">
+                            Concluiu: {{ atividade.modulo_aula }} | Nota: <span class="fw-bold text-success">{{
+                                atividade.nota_avaliacao }}</span>
+                        </p>
+                    </div>
+                    <small class="opacity-50 text-nowrap">{{ atividade.data_conclusao|date:"d/m - H:i" }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white p-5 rounded text-center shadow-sm">
+            <p class="text-muted">Nenhuma atividade recente registrada.</p>
+            <small>Quando você lançar notas, o histórico aparecerá aqui.</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
 </div>
 {% endblock %}

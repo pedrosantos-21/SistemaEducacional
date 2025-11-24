@@ -1,4 +1,4 @@
-from .models import Reeducando, Professor, Curso, Matricula, Progresso
+from .models import Reeducando, Professor, Curso, Matricula, Progresso, Administrador, Gestor, ConteudoHome
 from django.contrib.auth.models import User
 from django import forms
 
@@ -160,3 +160,96 @@ class ProgressoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # REGRA DE NEGÓCIO: Só mostra matrículas "Em Andamento" (Status=1)
         self.fields['matricula'].queryset = Matricula.objects.filter(status='1')
+
+# ... (Mantenha os forms anteriores) ...
+
+# --- FORMULÁRIO PARA RF003 (ADMINS) ---
+class AdministradorForm(forms.ModelForm):
+    senha_login = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '********'}),
+        label='Senha de Acesso'
+    )
+    confirmar_senha = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Repita a senha'}),
+        label='Confirmar Senha'
+    )
+
+    class Meta:
+        model = Administrador
+        fields = ['nome_completo', 'cpf', 'email', 'telefone', 'perfil_acesso', 'status']
+        
+        widgets = {
+            'nome_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control'}),
+            'perfil_acesso': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        senha = cleaned_data.get("senha_login")
+        confirmar = cleaned_data.get("confirmar_senha")
+        if senha and confirmar and senha != confirmar:
+            self.add_error('confirmar_senha', "As senhas não conferem.")
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(username=email).exists():
+            raise forms.ValidationError("Este e-mail já está cadastrado no sistema.")
+        return email
+
+
+# --- FORMULÁRIO PARA RF004 (GESTORES) ---
+class GestorForm(forms.ModelForm):
+    senha_login = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '********'}),
+        label='Senha de Acesso'
+    )
+    confirmar_senha = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Repita a senha'}),
+        label='Confirmar Senha'
+    )
+
+    class Meta:
+        model = Gestor
+        fields = ['nome_completo', 'email', 'cpf', 'unidade_responsavel', 'cargo_funcao', 'nivel_acesso', 'status', 'telefone']
+        
+        widgets = {
+            'nome_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
+            'unidade_responsavel': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'ID da Unidade'}),
+            'cargo_funcao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Diretor Geral'}),
+            'nivel_acesso': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        senha = cleaned_data.get("senha_login")
+        confirmar = cleaned_data.get("confirmar_senha")
+        if senha and confirmar and senha != confirmar:
+            self.add_error('confirmar_senha', "As senhas não conferem.")
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(username=email).exists():
+            raise forms.ValidationError("Este e-mail já está cadastrado no sistema.")
+        return email
+    
+    # Não esqueça de importar ConteudoHome lá em cima
+
+class ConteudoHomeForm(forms.ModelForm):
+    class Meta:
+        model = ConteudoHome
+        fields = ['titulo_principal', 'descricao_hero', 'texto_botao', 'link_botao']
+        
+        widgets = {
+            'titulo_principal': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Bem-vindo ao Sistema Educacional'}),
+            'descricao_hero': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'texto_botao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Acessar Área do Aluno'}),
+            'link_botao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: /login/'}),
+        }

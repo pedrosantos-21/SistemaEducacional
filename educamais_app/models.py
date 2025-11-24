@@ -27,6 +27,7 @@ class Reeducando(models.Model):
         (4, 'Egresso')
     ]
 
+    
     nome_completo = models.CharField(max_length=255, verbose_name="Nome Completo")
     alcunha = models.CharField(max_length=50, blank=True, null=True, verbose_name="Alcunha/Apelido")
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF")
@@ -244,6 +245,104 @@ class Certificado(models.Model):
     class Meta:
         verbose_name = "Certificado Emitido"
         verbose_name_plural = "Certificados Emitidos"
+
+# --- RF003: ADMINISTRADORES E OPERADORES ---
+class Administrador(models.Model):
+    """
+    RF003 - Requisito responsável pelo cadastramento de Administradores e Operadores.
+    [cite_start][cite: 90]
+    """
+    # Vínculo com User do Django para Login
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Usuário do Sistema", null=True)
+    
+    # Perfis definidos no RF003
+    PERFIL_CHOICES = [
+        (1, 'Administrador Geral'),
+        (2, 'Gestor'), # Mantido conforme documento, mas RF004 detalha melhor o Gestor
+        (3, 'Operador'),
+    ]
+    STATUS_CHOICES = [(1, 'Ativo'), (2, 'Inativo'), (3, 'Suspenso')]
+
+    nome_completo = models.CharField(max_length=255, verbose_name="Nome Completo")
+    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF")
+    email = models.EmailField(verbose_name="E-mail")
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    
+    perfil_acesso = models.IntegerField(choices=PERFIL_CHOICES, verbose_name="Perfil de Acesso")
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    data_cadastro = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nome_completo} ({self.get_perfil_acesso_display()})"
+
+    class Meta:
+        verbose_name = "Administrador/Operador"
+        verbose_name_plural = "Administradores e Operadores"
+
+
+# --- RF004: GESTORES ---
+class Gestor(models.Model):
+    """
+    RF004 - Requisito responsável pelo cadastramento de Gestores.
+    [cite_start][cite: 90]
+    """
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Usuário do Sistema", null=True)
+    
+    NIVEL_ACESSO_CHOICES = [
+        (1, 'Gestor Geral'),
+        (2, 'Coordenador de Unidade'),
+        (3, 'Supervisor Pedagógico'),
+    ]
+    STATUS_CHOICES = [(1, 'Ativo'), (2, 'Inativo'), (3, 'Afastado')]
+
+    nome_completo = models.CharField(max_length=255, verbose_name="Nome Completo")
+    email = models.EmailField(verbose_name="E-mail")
+    cpf = models.CharField(max_length=14, verbose_name="CPF")
+    
+    # RF004 exige vínculo com Unidade e Cargo
+    unidade_responsavel = models.IntegerField(verbose_name="ID da Unidade Responsável") # Pode ser FK no futuro
+    cargo_funcao = models.CharField(max_length=100, verbose_name="Cargo/Função")
+    
+    nivel_acesso = models.IntegerField(choices=NIVEL_ACESSO_CHOICES, verbose_name="Nível de Acesso")
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    data_cadastro = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nome_completo} - {self.cargo_funcao}"
+
+    class Meta:
+        verbose_name = "Gestor"
+        verbose_name_plural = "Gestores"
+
+# --- RF006: CONTEÚDO DA HOME ---
+class ConteudoHome(models.Model):
+    """
+    RF006 - Gerenciamento da Home Page.
+    Geralmente teremos apenas 1 registro nesta tabela (ID=1) que será atualizado.
+    [cite_start][cite: 90]
+    """
+    titulo_principal = models.CharField(max_length=200, verbose_name="Título Principal (Hero)")
+    descricao_hero = models.TextField(verbose_name="Descrição (Hero)")
+    texto_botao = models.CharField(max_length=50, verbose_name="Texto do Botão")
+    link_botao = models.CharField(max_length=200, verbose_name="Link do Botão")
+    
+    data_ultima_modificacao = models.DateTimeField(auto_now=True)
+    
+    # Quem alterou (opcional, pega o usuário logado na view)
+    autor_modificacao = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        verbose_name="Autor da Modificação"
+    )
+
+    def __str__(self):
+        return "Configuração da Home Page"
+
+    class Meta:
+        verbose_name = "Conteúdo Home"
+        verbose_name_plural = "Conteúdo Home"
 
 '''
 1º O que ela faz?

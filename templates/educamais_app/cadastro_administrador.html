@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Novo Administrador / Operador</h2>
+        <span class="small opacity-75">Controle de Acesso e Permissões (RF003)</span>
+    </div>
+
+    {% if sucesso %}
+    <div class="alert alert-success alert-dismissible fade show">
+        <strong>Sucesso!</strong> Usuário administrativo criado corretamente.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Ops! Verifique os erros:</strong>
+            <ul>
+            {% for field in form %}
+                {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <h5 class="mb-3 text-white-50">Credenciais de Acesso</h5>
+        <div class="row g-3 mb-4 p-3 border border-light border-opacity-25 rounded bg-black bg-opacity-10">
+            <div class="col-md-6">
+                <label class="form-label">{{ form.email.label }} (Será o Login)</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.senha_login.label }}</label>
+                {{ form.senha_login }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.confirmar_senha.label }}</label>
+                {{ form.confirmar_senha }}
+            </div>
+        </div>
+
+        <h5 class="mb-3 text-white-50">Dados do Usuário</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">{{ form.nome_completo.label }}</label>
+                {{ form.nome_completo }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.cpf.label }}</label>
+                {{ form.cpf }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ form.telefone.label }}</label>
+                {{ form.telefone }}
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-warning">{{ form.perfil_acesso.label }}</label>
+                {{ form.perfil_acesso }}
+                <div class="form-text text-white-50 small">Define o nível de poder do usuário no sistema.</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">{{ form.status.label }}</label>
+                {{ form.status }}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="reset" class="btn btn-outline-light text-dark border-dark">Limpar</button>
+            <button type="submit" class="btn btn-orange px-4">Salvar Administrador</button>
+        </div>
+    </form>
+</div>
+{% endblock %}  ```
+
